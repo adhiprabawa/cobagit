@@ -1,0 +1,159 @@
+<html>
+	<head>
+		<title>Billboard</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<script src="js/jquery-1.10.2.min.js"></script>
+		<script type="text/javascript" src="js/jquery.simple-text-rotator.js"></script>
+		<script type="text/javascript" src="js/jquery.flip.js"></script>
+		<script type="text/javascript" src="js/jquery.flip.min.js"></script>
+
+		<link href="css/bootstrap.css" rel="stylesheet">
+		<link href="css/style.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="css/simpletextrotator.css" />
+		<link href='http://fonts.googleapis.com/css?family=Oswald' rel='stylesheet' type='text/css'>
+
+		<script type="text/javascript">
+			var splitter = 12;
+			var current = 0;
+			//var companies = "Astra Agro Lestari,Mahaka Media,Asuransi Bina Dana Arta,ABM Investama,Pertamina,Amikom,Matahari,Intel,Asus,AMD,Samsung,Apple,Lenovo,Acer,Toshiba,Fujitsu,Google,Yahoo,Path,Aqua,Ciputra,Starbucks,Paperone,Artha Gading,Ciputra World,Unikom,Binus,Trisakti,Ukrida,Atmajaya,UKDW,ITB,ITS,Airlangga,UPH,Petra,UGM,Sanata Dharma,Sarjana Wiyata,Maxikom,Andy,Sampoerna,Arga Produksi,Danone,Bank Negara Indonesia,Bank Mandiri,Bank Central Asia,CMBNiaga,Bank Panin,Permata Bank,Batik Keris,Dagadu,Telkom,Indosat,Axiss,Sony,Ultrajaya,Sosro,Tirta Investama,Maranatha,BreadTalk,Pepper Lunch,XO Suki,J.CO,Duncin Donuts";
+			//var listCompanies = companies.split(',');
+
+			var listCompanies = Array();
+
+			$.ajax({
+				url : './contents/companies.json',
+				async : false,
+				dataType : 'json',
+				success : function(data) {
+					$.each(data, function(k, v) {
+						listCompanies.push(v);
+					});
+				}
+			});
+
+			//console.log(listCompanies);
+
+			/**
+			 * to complete an empty div with empty data
+			 */
+			if (listCompanies.length % splitter != 0) {
+				var emptyCompanies = splitter - (listCompanies.length % splitter);
+				for ( j = 0; j < emptyCompanies; j++) {
+					listCompanies.push(' ');
+				}
+			}
+
+			var interval = 5000;
+			var limitation = (listCompanies.length / splitter);
+			//console.log(listCompanies);
+			var showCompanies = [];
+
+			/**
+			 * making div initiation of companies list
+			 */
+			function init() {
+				for (var i = 1; i <= splitter; i++) {
+					$("#companies").append('<div id="' + i + '" class="col-md-6"></div>');
+					var t = $("div#" + i).height();
+					//console.log(t+"try");
+
+					var s = t / 4;
+					//console.log(s);
+
+					$("div#" + i).css({
+						'padding-top' : s
+					});
+
+					//$('#companies').css('padding-top', t + 1);
+					//console.log($('#companies').css('padding-top', t + 10));
+				}
+			}
+
+			/**
+			 * insert companies list to div with fade animation
+			 */
+			function insertCompanies() {
+				var k = 1;
+
+				for (var i = 0; i < showCompanies.length; i++) {( function(i) {
+							setTimeout(function() {
+
+								//console.log(i);
+								//console.log(showCompanies[i]);
+
+								// url >> $http://lab.smashup.it/flip/
+
+								$("#" + k).flip({
+									direction : 'tb',
+									color : 'lightblue',
+									content : showCompanies[i]
+								})
+								k += 1;
+							}, 150 * i);
+						}(i));
+				}
+
+			}
+
+			/**
+			 * push companies data to array showCompanies with splitter
+			 */
+			function pushCompanies() {
+
+				for (var i = 0; i < listCompanies.length; i++) {
+					if ((i >= current * splitter) && (i < (current + 1) * splitter)) {
+
+						showCompanies.push(listCompanies[i]);
+					}
+				}
+			}
+
+
+			$(document).ready(function() {
+
+				/**
+				 * called function to create div
+				 */
+				init();
+
+				/**
+				 * called function pushing data to showcompanies array
+				 */
+				pushCompanies();
+
+				/**
+				 * called function to insert coompanies list to div companies class
+				 */
+				insertCompanies();
+
+				setInterval(function() {
+
+					if (current < limitation) {
+						current++;
+					} else {
+						current = 0;
+					}
+
+					//console.log(current);
+					//console.log(showCompanies);
+
+					showCompanies = [];
+
+					pushCompanies();
+
+					//console.log(showCompanies);
+
+					insertCompanies();
+
+				}, interval);
+
+			});
+
+		</script>
+	</head>
+	<body>
+
+		<div id="companies" class="row"></div>
+
+	</body>
+</html>
